@@ -1,0 +1,12 @@
+C:\Users\user\Documents\Projects\UnityServer\UnityServer\bin\Debug\UnityServer.exe
+C:\Users\user\Documents\Projects\UnityServer\UnityServer\bin\Debug\UnityServer.pdb
+C:\Users\user\Documents\Projects\UnityServer\UnityServer\obj\x86\Debug\UnityServer.exe
+C:\Users\user\Documents\Projects\UnityServer\UnityServer\obj\x86\Debug\UnityServer.pdb
+C:\Users\ele\Documents\카카오톡 받은 파일\UnityServer\UnityServer\obj\x86\Debug\UnityServer.exe
+C:\Users\ele\Documents\카카오톡 받은 파일\UnityServer\UnityServer\obj\x86\Debug\UnityServer.pdb
+C:\Users\ele\Documents\카카오톡 받은 파일\UnityServer\UnityServer\bin\Debug\UnityServer.exe
+C:\Users\ele\Documents\카카오톡 받은 파일\UnityServer\UnityServer\bin\Debug\UnityServer.pdb
+C:\Users\user\Documents\0816\카카오~1\UnityServer\UnityServer\obj\x86\Debug\UnityServer.exe
+C:\Users\user\Documents\0816\카카오~1\UnityServer\UnityServer\bin\Debug\UnityServer.exe
+C:\Users\user\Documents\0816\카카오~1\UnityServer\UnityServer\bin\Debug\UnityServer.pdb
+C:\Users\user\Documents\0816\카카오~1\UnityServer\UnityServer\obj\x86\Debug\UnityServer.pdb
