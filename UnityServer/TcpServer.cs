@@ -14,6 +14,9 @@ public class TcpServer
 
 	object receiveLock;
 
+	AsyncCallback asyncReceiveLengthCallBack;
+	AsyncCallback asyncReceiveDataCallBack;
+
 	public TcpServer (Queue<TcpPacket> newQueue, IPAddress newAddress, int newPort, object newLock, Hashtable newHashtable)
 	{
 		listenSock = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -25,8 +28,10 @@ public class TcpServer
 		receiveLock = newLock;
 
 		AsyncCallback asyncAcceptCallback = new AsyncCallback (HandleAsyncAccept);
-		Object ob1 = (Object)listenSock;
-		listenSock.BeginAccept (asyncAcceptCallback, ob1);
+		asyncReceiveLengthCallBack = new AsyncCallback (HandleAsyncReceiveLength);
+		asyncReceiveDataCallBack = new AsyncCallback (HandleAsyncReceiveData);
+
+		listenSock.BeginAccept (asyncAcceptCallback, (Object)listenSock);
 	}
 
 	public void HandleAsyncAccept(IAsyncResult asyncResult)
@@ -43,14 +48,12 @@ public class TcpServer
 		Object ob1 = (Object)listenSock;
 
 		AsyncData asyncData = new AsyncData (clientSock);
-		AsyncCallback asyncReceiveCallBack = new AsyncCallback (HandleAsyncReceive);
-		Object ob2 = (Object)asyncData;
 
 		listenSock.BeginAccept (asyncAcceptCallback, ob1);
-		clientSock.BeginReceive (asyncData.msg, 0, AsyncData.msgMaxLength, SocketFlags.None, asyncReceiveCallBack, ob2);
+		clientSock.BeginReceive (asyncData.msg, 0, UnityServer.packetLength, SocketFlags.None, asyncReceiveLengthCallBack, (Object)asyncData);
 	}
 
-	public void HandleAsyncReceive(IAsyncResult asyncResult)
+	public void HandleAsyncReceiveLength(IAsyncResult asyncResult)
 	{
 		AsyncData asyncData = (AsyncData) asyncResult.AsyncState;
 		Socket clientSock = asyncData.clientSock;
@@ -69,16 +72,38 @@ public class TcpServer
 
 		if (asyncData.msgSize > 0)
 		{
-			HeaderData header = new HeaderData();
-			HeaderSerializer serializer = new HeaderSerializer();
+			int msgSize = BitConverter.ToInt16 (asyncData.msg, 0);
+			asyncData = new AsyncData(clientSock);
+			clientSock.BeginReceive (asyncData.msg, 0, msgSize + UnityServer.packetType, SocketFlags.None, asyncReceiveDataCallBack, (Object)asyncData);
+		}
+		else
+		{
+			asyncData = new AsyncData(clientSock);
+			clientSock.BeginReceive (asyncData.msg, 0, UnityServer.packetLength, SocketFlags.None, asyncReceiveLengthCallBack, (Object)asyncData);
+		}
+	}
 
-			serializer.SetDeserializedData(asyncData.msg);
-			serializer.Deserialize (ref header);
+	public void HandleAsyncReceiveData(IAsyncResult asyncResult)
+	{
+		AsyncData asyncData = (AsyncData) asyncResult.AsyncState;
+		Socket clientSock = asyncData.clientSock;
 
-			byte[] data = new byte[header.length + UnityServer.packetType];
-			Array.Copy (asyncData.msg, UnityServer.packetLength, data, 0, header.length + UnityServer.packetType);
+		try
+		{
+			asyncData.msgSize = (short) clientSock.EndReceive (asyncResult);
+		}
+		catch
+		{
+			Console.WriteLine ("클라이언트가 접속을 종료했습니다.");
+			LoginUser.Remove (clientSock);
+			clientSock.Close ();
+			return;
+		}
 
-			TcpPacket paket = new TcpPacket (data, clientSock);
+		if (asyncData.msgSize > 0)
+		{
+			Array.Resize (ref asyncData.msg, asyncData.msgSize);
+			TcpPacket paket = new TcpPacket (asyncData.msg, clientSock);
 
 			lock (receiveLock)
 			{
@@ -93,15 +118,13 @@ public class TcpServer
 			}
 		}
 
-		AsyncCallback asyncReceiveCallBack = new AsyncCallback (HandleAsyncReceive);
-		Object ob2 = (Object)asyncData;
-
-		clientSock.BeginReceive (asyncData.msg, 0, AsyncData.msgMaxLength, SocketFlags.None, asyncReceiveCallBack, ob2);
+		asyncData = new AsyncData(clientSock);
+		clientSock.BeginReceive (asyncData.msg, 0, UnityServer.packetLength, SocketFlags.None, asyncReceiveLengthCallBack, (Object)asyncData);
 	}
 }
 
 
-class AsyncData
+public class AsyncData
 {
 	public Socket clientSock;
 	public byte[] msg;

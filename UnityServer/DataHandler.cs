@@ -107,7 +107,7 @@ public class DataHandler
 
 	public ServerPacketId CreateAccount (byte[] data)
 	{
-		Console.WriteLine ("가입요청");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 가입요청");
 
 		AccountPacket accountPacket = new AccountPacket (data);
 		AccountData accountData = accountPacket.GetData ();
@@ -136,7 +136,7 @@ public class DataHandler
 
 	public ServerPacketId DeleteAccount (byte[] data)
 	{
-		Console.WriteLine ("탈퇴요청");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 탈퇴요청");
 
 		AccountPacket accountPacket = new AccountPacket (data);
 		AccountData accountData = accountPacket.GetData ();
@@ -165,7 +165,7 @@ public class DataHandler
 
 	public ServerPacketId Login (byte[] data)
 	{
-		Console.WriteLine ("로그인요청");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 로그인요청");
 
 		AccountPacket accountPacket = new AccountPacket (data);
 		AccountData accountData = accountPacket.GetData ();
@@ -213,7 +213,7 @@ public class DataHandler
 
 	public ServerPacketId GetRoomList(byte[] data)
 	{
-		Console.WriteLine ("방목록 조회");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 방목록 조회");
 
 		try
 		{
@@ -230,7 +230,7 @@ public class DataHandler
 
 	public ServerPacketId CreateRoom(byte[] data)
 	{
-		Console.WriteLine ("방 생성");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 방 생성");
 
 		CreateRoomPacket createRoomPacket = new CreateRoomPacket (data);
 		CreateRoomData createRoomData = createRoomPacket.GetData ();
@@ -255,7 +255,7 @@ public class DataHandler
 
 	public ServerPacketId EnterRoom(byte[] data)
 	{
-		Console.WriteLine ("방 입장");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 방 입장");
 
 		int roomNum = data[0] - 1;
 		Socket host = roomManager.EnterRoom (roomNum);
@@ -284,7 +284,7 @@ public class DataHandler
 
 	public ServerPacketId ExitRoom(byte[] data)
 	{
-		Console.WriteLine ("방 퇴장");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 방 퇴장");
 
 		int roomNum = data[0] - 1;
 
@@ -308,7 +308,7 @@ public class DataHandler
 
 	public ServerPacketId GameStart(byte[] data)
 	{
-		Console.WriteLine ("게임시작");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 게임시작");
 
 		int roomNum = BitConverter.ToInt32 (data, 0);
 
@@ -329,7 +329,7 @@ public class DataHandler
 
 	public ServerPacketId Logout (byte[] data)
 	{
-		Console.WriteLine ("로그아웃요청");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 로그아웃요청");
 
 		string id = Encoding.Unicode.GetString(data);
 
@@ -358,7 +358,7 @@ public class DataHandler
 
 	public ServerPacketId GameClose (byte[] data)
 	{
-		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + "가 게임을 종료했습니다.");
+		Console.WriteLine (tcpPacket.client.RemoteEndPoint.ToString() + " 가 게임을 종료했습니다.");
 
 		try
 		{
@@ -370,6 +370,7 @@ public class DataHandler
 			}
 
 			LoginUser.Remove(tcpPacket.client);
+			tcpPacket.client.Close();
 		}
 		catch
 		{
